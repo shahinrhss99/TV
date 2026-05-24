@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ফ্রি আইপিটিভি হোস্টিং</title>
-    <!-- Clappr Live TV Player CDN -->
+    <title>আমার ফ্রি আইপিটিভি হোস্টিং</title>
+    <!-- Clappr লাইভ টিভি প্লেয়ার CDN -->
     <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
     <style>
         body { margin: 0; padding: 0; background: #111; color: #fff; font-family: Arial, sans-serif; text-align: center; }
@@ -18,32 +18,49 @@
 <body>
 
     <div class="container">
-        <h2>ফ্রি লাইভ টিভি প্লেয়ার</h2>
+        <h2>ফ্রি লাইভ টিভি প্লেয়ার (CORS Bypass Built-in)</h2>
         
         <!-- ভিডিও প্লেয়ার কন্টেইনার -->
         <div id="player"></div>
 
         <h3>চ্যানেল লিস্ট</h3>
         <div class="channel-list">
-            <!-- এখানে আপনার ইচ্ছেমতো ফ্রি চ্যানেলের নাম ও m3u8 লিংক বসিয়ে দিন -->
-            <button class="channel-btn" onclick="playVideo('http://198.195.239.50:8095/Tsports/index.m3u8')">চ্যানেল ১</button>
-            <button class="channel-btn" onclick="playVideo('http://198.195.239.50:8095/StarSportsSelect1/tracks-v1a1/mono.m3u8')">চ্যানেল ২</button>
+            <!-- নিচে 'আপনার_m3u8_লিংক_এখানে' লেখাগুলো পরিবর্তন করে আপনার আসল লিংকের ইউআরএল বসিয়ে দিন -->
+            <button class="channel-btn" onclick="playVideo('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8')">চ্যানেল ১ (Demo)</button>
+            <button class="channel-btn" onclick="playVideo('আপনার_m3u8_লিংক_এখানে_২')">চ্যানেল ২</button>
+            <button class="channel-btn" onclick="playVideo('আপনার_m3u8_লিংক_এখানে_৩')">চ্যানেল ৩</button>
+            <button class="channel-btn" onclick="playVideo('আপনার_m3u8_লিংক_এখানে_৪')">চ্যানেল ৪</button>
         </div>
     </div>
 
     <script>
-        // ডিফল্ট প্লেয়ার সেটআপ
+        // গিটহাবের CORS ব্লক এড়ানোর জন্য অল-অরিজিন্স প্রক্সি মেকানিজম
+        function getProxyUrl(originalUrl) {
+            // ডেমো লিংকটি সরাসরি চলে, তাই প্রক্সি লাগবে না। বাকি সব লিংকের সাথে প্রক্সি যুক্ত হবে।
+            if (originalUrl.includes("doubleclick.net") || originalUrl.includes("আপনার_m3u8_লিংক_এখানে")) {
+                return originalUrl;
+            }
+            // আসল লিংকের শুরুতে অল-অরিজিন্স প্রক্সি মেকানিজম যুক্ত করা হচ্ছে
+            return "https://api.allorigins.win/raw?url=" + encodeURIComponent(originalUrl);
+        }
+
+        // সাইট খোলার পর প্রথম যে চ্যানেলটি ডিফল্ট হিসেবে প্লে হবে
+        var defaultStream = "http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8";
+
+        // প্লেয়ার সেটআপ
         var player = new Clappr.Player({
-            source: "http://198.195.239.50:8095/Tsports/index.m3u8", // প্রথম সোর্স
+            source: getProxyUrl(defaultStream),
             parentId: "#player",
             width: "100%",
             height: "100%",
             autoPlay: false
         });
 
-        // চ্যানেল পরিবর্তনের ফাংশন
+        // বোতামে ক্লিক করলে চ্যানেল পরিবর্তন করার ফাংশন
         function playVideo(url) {
-            player.load(url);
+            var secureUrl = getProxyUrl(url);
+            console.log("Playing via proxy:", secureUrl);
+            player.load(secureUrl);
             player.play();
         }
     </script>
