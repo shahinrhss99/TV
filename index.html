@@ -4,65 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>আমার ফ্রি আইপিটিভি হোস্টিং</title>
-    <!-- Clappr লাইভ টিভি প্লেয়ার CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; background: #111; color: #fff; font-family: Arial, sans-serif; text-align: center; }
-        .container { max-width: 900px; margin: 20px auto; padding: 10px; }
-        #player { width: 100%; height: 480px; background: #000; margin-bottom: 20px; border-radius: 8px; overflow: hidden; }
-        .channel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; padding: 10px; }
-        .channel-btn { background: #222; border: 1px solid #444; color: #fff; padding: 12px; cursor: pointer; border-radius: 5px; transition: 0.3s; font-size: 14px; }
-        .channel-btn:hover { background: #ff0055; border-color: #ff0055; }
+        body { margin: 0; padding: 0; background: #0f0f12; color: #fff; font-family: 'Segoe UI', Arial, sans-serif; text-align: center; }
+        .container { max-width: 900px; margin: 20px auto; padding: 15px; }
+        .player-wrapper { width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); background: #000; margin-bottom: 25px; }
+        video { width: 100%; display: block; }
+        .channel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding: 10px; }
+        .channel-btn { background: #1f1f27; border: 1px solid #333; color: #fff; padding: 14px; cursor: pointer; border-radius: 8px; transition: 0.2s ease; font-size: 14px; font-weight: bold; }
+        .channel-btn:hover { background: #ff0055; border-color: #ff0055; transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>ফ্রি লাইভ টিভি প্লেয়ার (CORS Bypass Built-in)</h2>
+        <h2>ফ্রি লাইভ টিভি প্লেয়ার (Advanced HLS)</h2>
         
-        <!-- ভিডিও প্লেয়ার কন্টেইনার -->
-        <div id="player"></div>
+        <div class="player-wrapper">
+            <video id="player" controls crossorigin playsinline></video>
+        </div>
 
         <h3>চ্যানেল লিস্ট</h3>
         <div class="channel-list">
-            <!-- নিচে 'আপনার_m3u8_লিংক_এখানে' লেখাগুলো পরিবর্তন করে আপনার আসল লিংকের ইউআরএল বসিয়ে দিন -->
-            <button class="channel-btn" onclick="playVideo('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8')">চ্যানেল ১ (Demo)</button>
-            <button class="channel-btn" onclick="playVideo('আপনার_m3u8_লিংক_এখানে_২')">চ্যানেল ২</button>
-            <button class="channel-btn" onclick="playVideo('আপনার_m3u8_লিংক_এখানে_৩')">চ্যানেল ৩</button>
-            <button class="channel-btn" onclick="playVideo('আপনার_m3u8_লিংক_এখানে_৪')">চ্যানেল ৪</button>
+            <button class="channel-btn" onclick="playM3U8('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8')">চ্যানেল ১ (Demo)</button>
+            <button class="channel-btn" onclick="playM3U8('আপনার_m3u8_লিংক_এখানে_২')">চ্যানেল ২</button>
+            <button class="channel-btn" onclick="playM3U8('আপনার_m3u8_লিংক_এখানে_৩')">চ্যানেল ৩</button>
         </div>
     </div>
 
     <script>
-        // গিটহাবের CORS ব্লক এড়ানোর জন্য অল-অরিজিন্স প্রক্সি মেকানিজম
-        function getProxyUrl(originalUrl) {
-            // ডেমো লিংকটি সরাসরি চলে, তাই প্রক্সি লাগবে না। বাকি সব লিংকের সাথে প্রক্সি যুক্ত হবে।
-            if (originalUrl.includes("doubleclick.net") || originalUrl.includes("আপনার_m3u8_লিংক_এখানে")) {
-                return originalUrl;
+        const video = document.getElementById('player');
+        let hls = new Hls();
+        let player;
+
+        // চ্যানেল প্লে করার মেইন ফাংশন
+        function playM3U8(url) {
+            // যদি ব্রাউজার HLS সাপোর্ট করে (যেমন ক্রোম, ফায়ারফক্স ইত্যাদি)
+            if (Hls.isSupported()) {
+                hls.destroy(); // আগের স্ট্রিম বন্ধ করা
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            } 
+            // যদি ব্রাউজারে বিল্ট-ইন সাপোর্ট থাকে (যেমন আইফোন বা সাফারী ব্রাউজার)
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
             }
-            // আসল লিংকের শুরুতে অল-অরিজিন্স প্রক্সি মেকানিজম যুক্ত করা হচ্ছে
-            return "https://api.allorigins.win/raw?url=" + encodeURIComponent(originalUrl);
         }
 
-        // সাইট খোলার পর প্রথম যে চ্যানেলটি ডিফল্ট হিসেবে প্লে হবে
-        var defaultStream = "http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8";
-
-        // প্লেয়ার সেটআপ
-        var player = new Clappr.Player({
-            source: getProxyUrl(defaultStream),
-            parentId: "#player",
-            width: "100%",
-            height: "100%",
-            autoPlay: false
+        // সাইট লোড হলে প্রথম ডেমো চ্যানেলটি অটোমেটিক সেট হবে
+        document.addEventListener('DOMContentLoaded', () => {
+            player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
+            playM3U8(''http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8');
         });
-
-        // বোতামে ক্লিক করলে চ্যানেল পরিবর্তন করার ফাংশন
-        function playVideo(url) {
-            var secureUrl = getProxyUrl(url);
-            console.log("Playing via proxy:", secureUrl);
-            player.load(secureUrl);
-            player.play();
-        }
     </script>
 </body>
 </html>
