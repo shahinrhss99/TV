@@ -28,9 +28,9 @@
 
         <h3>চ্যানেল লিস্ট</h3>
         <div class="channel-list">
-            <button class="channel-btn" onclick="playM3U8('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">চ্যানেল ১ (Demo)</button>
-            <button class="channel-btn" onclick="playM3U8('আপনার_m3u8_লিংক_এখানে_২')">চ্যানেল ২</button>
-            <button class="channel-btn" onclick="playM3U8('আপনার_m3u8_লিংক_এখানে_৩')">চ্যানেল ৩</button>
+            <button class="channel-btn" onclick="playM3U8('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8')">T Sports</button>
+            <button class="channel-btn" onclick="playM3U8('http://198.195.239.50:8095/StarSportsSelect1/tracks-v1a1/mono.m3u8২')">/Star Sports Select 1</button>
+            <button class="channel-btn" onclick="playM3U8('http://198.195.239.50:8095/SonyTenSports2/tracks-v1a1/mono.m3u8')">Sony Ten Sports 2</button>
         </div>
     </div>
 
@@ -63,7 +63,7 @@
         // সাইট লোড হলে প্রথম ডেমো চ্যানেলটি অটোমেটিক সেট হবে
         document.addEventListener('DOMContentLoaded', () => {
             player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
-            playM3U8('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8');
+            playM3U8('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8');
         });
     </script>
 </body>
