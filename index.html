@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NIS TV Pro | Complete M3U8 Player (Embedded Playlist)</title>
+    <title>NIS TV Pro | M3U8 Player</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
@@ -388,6 +388,8 @@
     // This is the complete M3U content you shared. It contains all channels.
     const DEFAULT_M3U_CONTENT = `#EXTM3U
 # Source: SRC-ID:8a0a955eed047000f93213bc
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/T%20Sports.png" group-title="Sports",T Sports
+https://tvsen7.aynaott.com/tsports-hd/tracks-v1a1/mono.ts.m3u8
 #EXTINF:-1 tvg-logo="https://ssl.com.bd/sites/default/files/BTV%20Logo%20Gallery.png" group-title="Bangla",BTV
 https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8
 #EXTINF:-1 tvg-logo="https://dl.dropbox.com/s/leielj83em5kg7h/somoy_news.png" group-title="Bangla",Somoy TV
@@ -456,8 +458,6 @@ https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91e
 https://dhoomtv.xyz/live/P4B9TB9xR8/humongous2tonight/23218.ts
 #EXTINF:-1 tvg-logo="https://i.ibb.co.com/KxC4ccD0/Casio-opening-bot-logo-4k-scaled.png" group-title="Music",9xM
 https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/a731c680-6a62-4174-bc98-186fe654724a/0.m3u8
-#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/T%20Sports.png" group-title="Sports",T Sports
-https://live.tsports.com/mobile_hls/tsports_live_2/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPCvTmUhiKDs4ehoVpFLh7xwdCNK2-N_gNFqnaOM4YRQ&s=10" group-title="Sports",Live Sports
 http://198.195.239.50:8095/Eurosport/index.m3u8
 #EXTINF:-1 tvg-logo="https://carboncredits.com/wp-content/uploads/2025/09/shutterstock_2306088965-e1757112807302.jpg" group-title="Sports",Football World Cup 2026
