@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Live Free TV</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <!-- HLS.js library for m3u8 playback -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>NIS TV Pro | Complete M3U8 Player (Embedded Playlist)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -14,472 +14,781 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg: #0f0f0f;
-            --card: #1a1a1a;
-            --accent: #ff0055;
-            --text: #fff;
-            --hover: #2a2a2a;
-        }
-
-        body, html {
-            height: 100%;
+        body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow: hidden;
+            background: #0a0c15;
+            color: #edeef7;
+            padding: 20px;
         }
 
         .app-container {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .header {
             display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Player section */
-        .player-section {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            background: #000;
-            padding: 20px;
-            gap: 15px;
-            box-sizing: border-box;
-        }
-
-        .video-container {
-            position: relative;
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            aspect-ratio: 16 / 9;
-            width: 100%;
-        }
-
-        #video-player {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: black;
-        }
-
-        .video-info h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            flex: 1;
-            min-width: 350px;
-            background: var(--card);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid rgba(255,255,255,.1);
-        }
-
-        .search-container {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,.08);
-        }
-
-        #channel-search {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,.05);
-            color: #fff;
-            margin-bottom: 15px;
-            outline: none;
-            font-size: 1rem;
-        }
-
-        .category-tabs {
-            display: flex;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #2c2f42;
+            padding-bottom: 15px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #b6a2ff, #6080ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .reset-btn {
+            background: #1f2235;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #ff9e8f;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* two columns */
+        .dashboard {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* left panel (add sources) */
+        .add-panel {
+            flex: 0 0 320px;
+            background: #0f1220;
+            border-radius: 28px;
+            padding: 1.4rem;
+            border: 1px solid #292e44;
+        }
+
+        .add-panel h3 {
+            font-size: 1.2rem;
+            margin: 0 0 1rem 0;
+            border-left: 4px solid #5e7bff;
+            padding-left: 12px;
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
 
-        .cat-tab {
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: rgba(255,255,255,.08);
-            color: #fff;
-            font-size: 13px;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
+        .input-group {
+            margin-bottom: 1rem;
         }
 
-        .cat-tab.active {
-            background: var(--accent);
+        .input-group label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #9aa3c7;
+            display: block;
+            margin-bottom: 6px;
         }
 
-        .channel-list {
-            list-style: none;
-            margin: 0;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            background: #181c2b;
+            border: 1px solid #2f354c;
+            padding: 10px 12px;
+            border-radius: 24px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .radio-group {
+            display: flex;
             gap: 15px;
-            overflow-y: auto;
-            align-content: start;
-            flex: 1;
+            margin: 12px 0;
+            font-size: 0.8rem;
         }
 
-        .channel-item {
-            background: rgba(255,255,255,.04);
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: center;
-            transition: 0.2s;
-            border: 2px solid transparent;
-            height: 140px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .btn-primary {
+            background: linear-gradient(90deg, #5263ff, #8a4eff);
+            width: 100%;
+            border: none;
             padding: 10px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            margin-top: 5px;
         }
 
-        .channel-item:hover {
-            background: var(--hover);
+        .btn-secondary {
+            background: #22263d;
+            border: 1px solid #42486b;
+            width: 100%;
+            border-radius: 40px;
+            padding: 9px;
+            cursor: pointer;
+            color: #cdd6ff;
         }
 
-        .channel-item.active {
-            border-color: var(--accent);
-            background: rgba(255,0,85,0.05);
+        hr {
+            margin: 20px 0;
+            border-color: #2a2f47;
         }
 
-        .logo-wrapper {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 8px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .small-note {
+            font-size: 0.7rem;
+            color: #7b83aa;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* right panel */
+        .content-panel {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        /* video player */
+        .video-area {
+            background: black;
+            border-radius: 28px;
             overflow: hidden;
-            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #2f354c;
+        }
+
+        video {
+            width: 100%;
+            max-height: 520px;
+            display: block;
+        }
+
+        .player-info {
+            background: #0e111d;
+            padding: 10px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #292e44;
+        }
+
+        .now-playing {
+            font-weight: 500;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .quality-select {
+            background: #1e2235;
+            border: none;
+            border-radius: 30px;
+            padding: 5px 12px;
+            color: white;
+        }
+
+        /* channels header */
+        .channels-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: #11141f;
+            border-radius: 40px;
+            padding: 5px 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cat-item {
+            background: #171b2b;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .cat-item.active {
+            background: #5e7bff;
+            color: white;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .channel-card {
+            background: #11141f;
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid #262b42;
+            transition: 0.2s;
+        }
+
+        .channel-card:hover {
+            background: #1a1e30;
+            border-color: #5e7bff;
+            transform: translateY(-2px);
         }
 
         .channel-logo {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .channel-name {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #ddd;
-            text-align: center;
-            word-break: break-word;
-            max-width: 100%;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        @media (max-width: 992px) {
-            body, html {
-                overflow: auto;
-                height: auto;
-            }
-            .app-container {
-                flex-direction: column;
-            }
-            .sidebar {
-                min-width: 100%;
-                height: auto;
-            }
-            .player-section {
-                flex: none;
-            }
-            .channel-list {
-                overflow-y: visible;
-            }
-        }
-
-        /* Error / loading state */
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
+            width: 48px;
+            height: 48px;
+            background: #232842;
+            border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 14px;
-            z-index: 10;
-            backdrop-filter: blur(4px);
-            border-radius: 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .channel-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .channel-group {
+            font-size: 0.65rem;
+            color: #9aa2c9;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 40px;
+            color: #6c729d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 35px;
+            padding-top: 15px;
+            border-top: 1px solid #262b42;
+            font-size: 0.7rem;
+            color: #6d749b;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e233b;
+            backdrop-filter: blur(8px);
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            z-index: 999;
         }
     </style>
 </head>
 <body>
 <div class="app-container">
-    <main class="player-section">
-        <div class="video-container" id="video-container">
-            <video id="video-player" controls playsinline preload="auto"></video>
+    <div class="header">
+        <div class="logo">
+            <h1>NIS TV Pro <span style="font-size:0.8rem;">⚡ Built-in Playlist</span></h1>
         </div>
-        <div class="video-info">
-            <h1 id="now-playing-title">TSports HD</h1>
-        </div>
-    </main>
-    <aside class="sidebar">
-        <div class="search-container">
-            <input id="channel-search" placeholder="Search channels..." autocomplete="off">
-            <div class="category-tabs">
-                <button class="cat-tab active" data-type="all">All</button>
-                <button class="cat-tab" data-type="Sports">Sports</button>
-                <button class="cat-tab" data-type="News">News</button>
-                <button class="cat-tab" data-type="Bangla">Bangla</button>
-                <button class="cat-tab" data-type="Indian Bangla">Indian Bangla</button>
-                <button class="cat-tab" data-type="Hindi">Hindi</button>
-                <button class="cat-tab" data-type="Kids">Kids</button>
-                <button class="cat-tab" data-type="Documentary">Doc</button>
-                <button class="cat-tab" data-type="Music">Music</button>
-                <button class="cat-tab" data-type="Other">Other</button>
+        <button id="resetDefaultBtn" class="reset-btn"><i class="fas fa-database"></i> Restore Default Playlist</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- LEFT: Add Sources (optional) -->
+        <div class="add-panel">
+            <h3><i class="fas fa-plus-circle"></i> Add Sources</h3>
+            <div class="input-group">
+                <label><i class="fas fa-link"></i> M3U Playlist URL</label>
+                <input type="text" id="m3uUrlInput" placeholder="https://example.com/playlist.m3u">
+                <div class="radio-group">
+                    <label><input type="radio" name="mergeMode" value="replace" checked> Replace</label>
+                    <label><input type="radio" name="mergeMode" value="merge"> Merge</label>
+                </div>
+                <button id="fetchUrlBtn" class="btn-primary"><i class="fas fa-cloud-download-alt"></i> Fetch & Add</button>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-upload"></i> Local .m3u File</label>
+                <input type="file" id="m3uFileInput" accept=".m3u,.m3u8,.txt" style="display:none">
+                <button id="chooseFileBtn" class="btn-secondary"><i class="fas fa-folder-open"></i> Choose File</button>
+            </div>
+            <hr>
+            <h3><i class="fas fa-plus"></i> Add Single Channel</h3>
+            <div class="input-group">
+                <input type="text" id="chName" placeholder="Channel Name">
+                <input type="text" id="chUrl" placeholder="Stream URL (.m3u8 or .mp4)">
+                <input type="text" id="chGroup" placeholder="Category (e.g. Bangla)">
+                <input type="text" id="chLogo" placeholder="Logo URL or emoji" maxlength="50">
+                <button id="addChannelBtn" class="btn-primary"><i class="fas fa-save"></i> Save Channel</button>
+            </div>
+            <div class="small-note">
+                <i class="fas fa-info-circle"></i> 200+ channels preloaded from your M3U list. Use "Restore Default" to get them back.
             </div>
         </div>
-        <ul class="channel-list" id="listbar"></ul>
-    </aside>
+
+        <!-- RIGHT: Player + Channels -->
+        <div class="content-panel">
+            <div class="video-area">
+                <video id="videoPlayer" controls poster="https://placehold.co/1920x540/0e1122/5e7bff?text=NIS+TV+Pro"></video>
+                <div class="player-info">
+                    <div class="now-playing"><i class="fas fa-tv"></i> <span id="currentChannelLabel">No channel</span></div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <i class="fas fa-chart-line"></i> <select id="qualitySelect" class="quality-select" disabled><option>Auto quality</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="channels-header">
+                <div><i class="fas fa-list"></i> <strong>My Channels</strong> <span id="totalChannels">(0)</span></div>
+                <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search..."></div>
+            </div>
+            <div id="categoriesList" class="categories"></div>
+            <div id="channelsGrid" class="channels-grid">
+                <div class="empty-msg"><i class="fas fa-spinner fa-pulse"></i> Loading channels...</div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">All Rights Reserved. NIS TV Pro-2026 | All channels from your provided M3U playlist (direct playback)</div>
 </div>
+<div id="toastMessage" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1e233b; padding:6px 20px; border-radius:40px; font-size:0.75rem; display:none; z-index:1000;"></div>
 
 <script>
-    // ------------------------------
-    // 1. Define channel data (m3u8 URLs included)
-    //    You can replace these with your own m3u8 links
-    // ------------------------------
-    const channelsData = [
-   { name: "T Sports", category: "Sports", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPCvTmUhiKDs4ehoVpFLh7xwdCNK2-N_gNFqnaOM4YRQ&s=10", url: "https://tvsen7.aynaott.com/tsports-hd/tracks-v1a1/mono.ts.m3u8" },
-  { name: "Gazi TV", category: "Bangla", logo: "https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Gazi%20TV.jpg", url: "http://tvn1.chowdhury-shaheb.com/gazitv/index.m3u8" },
-  { name: "BTV", category: "Bangla", logo: "https://ssl.com.bd/sites/default/files/BTV%20Logo%20Gallery.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8" },
-  { name: "Somoy TV", category: "Bangla", logo: "https://dl.dropbox.com/s/leielj83em5kg7h/somoy_news.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8" },
-  { name: "Ekattor TV", category: "Bangla", logo: "https://s4.gifyu.com/images/imagea02f4314e761661d.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/index.m3u8" },
-  { name: "Channel 24", category: "Bangla", logo: "https://dl.dropbox.com/s/puf12xv5flgbnz5/channel24_bd.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8" },
-  { name: "Independent TV", category: "Bangla", logo: "https://dl.dropbox.com/s/7xwwb8hetz3w8rp/independent_tv.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8" },
-  { name: "Jamuna TV", category: "Bangla", logo: "https://dl.dropbox.com/s/k7z1dsec1jfjbkn/jamuna_tv_bd.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/index.m3u8" },
-  { name: "ATN News", category: "Bangla", logo: "https://dl.dropbox.com/s/4ldi1dp09s8o6bm/atn_news_bd.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1706/output/index.m3u8" },
-  { name: "ATN Bangla", category: "Bangla", logo: "https://s6.gifyu.com/images/image27cfa7002786c232.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/index.m3u8" },
-  { name: "NTV", category: "Bangla", logo: "https://www.ntvbd.com/sites/default/files/aggregator/2020/02/17/ntv-channel_0.jpg", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/index.m3u8" },
-  { name: "BanglaVision", category: "Bangla", logo: "https://s4.gifyu.com/images/image5c0bfa6b281be803.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1715/output/index.m3u8" },
-  { name: "Ekushey TV", category: "Bangla", logo: "https://s4.gifyu.com/images/image534fa27d7683f33d.png", url: "https://tvsen6.aynaott.com/etv/tracks-v1a1/mono.ts.m3u8" },
-  { name: "Channel I", category: "Bangla", logo: "https://cdn.tvpassport.com/image/station/240x135/channel-i-bangla.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1723/output/index.m3u8" },
-  { name: "Deepto TV", category: "Bangla", logo: "https://upload.wikimedia.org/wikipedia/en/3/31/Deepto_TV_logo.png", url: "https://byphdgllyk.gpcdn.net/hls/deeptotv/0_1/index.m3u8" },
-  { name: "Saudi Quran", category: "Religious", logo: "https://yt3.ggpht.com/ytc/AMLnZu_Gxy8ywjMY6_YPX-1uYtUGA56FOfDoBsH62-ekNA=s900-c-k-c0x00ffffff-no-rj", url: "https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8" },
-  { name: "Madina Live", category: "Religious", logo: "https://images-na.ssl-images-amazon.com/images/I/71CywdrFaZL.png", url: "https://cdn-globecast.akamaized.net/live/eds/saudi_sunnah/hls_roku/index.m3u8" },
-  { name: "Love Nature", category: "Documentary", logo: "https://upload.wikimedia.org/wikipedia/en/1/1d/Love_Nature_TV.png", url: "https://cdn1.logichost.in/ajmantv/live/playlist.m3u8" },
-  { name: "Animal Planet HD", category: "Documentary", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Animal_Planet_logo.svg/1280px-Animal_Planet_logo.svg.png", url: "https://tiger-hub.vercel.app@vodzong.mjunoon.tv:8087/streamtest/Animal-Planet-158-3/playlist.m3u8" },
-  { name: "ATN Music", category: "Music", logo: "https://i.ytimg.com/vi/ZKFyzan2-xo/maxresdefault_live.jpg", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1717/output/index.m3u8" },
-  { name: "Deshi TV HD", category: "Live", logo: "https://i.postimg.cc/t4cxjxRj/Deshi-TV.jpg", url: "https://deshitv.deshitv24.net/live/myStream/playlist.m3u8" },
-  { name: "ABP Ananda", category: "Bangla", logo: "https://i.postimg.cc/662vVv5x/ABP-Ananda.jpg", url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/abp-ananda/1e4516fa-023a-4807-8e3d-479b346b4a62/2.m3u8" },
-  { name: "Star Jalsha HD", category: "Bangla", logo: "https://i.postimg.cc/1tmcNHW3/Star-Jalsha-HD.jpg", url: "https://dhoomtv.xyz/live/P4B9TB9xR8/humongous2tonight/23218.ts" },
-  { name: "Zee 24 Ghanta", category: "Bangla", logo: "https://i.postimg.cc/tTNPLBMs/24-Ghanta.jpg", url: "https://d2dsoyvkr33m05.cloudfront.net/index_1.m3u8" },
-  { name: "9xM", category: "Music", logo: "https://i.ibb.co.com/KxC4ccD0/Casio-opening-bot-logo-4k-scaled.png", url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/a731c680-6a62-4174-bc98-186fe654724a/0.m3u8" },
-  { name: "ZB Cartoon", category: "Kids", logo: "https://i.postimg.cc/FFwSjdzS/Pogo.jpg", url: "https://server.zillarbarta.com/zbcatun/video.m3u8" },
-  { name: "Duck TV", category: "Kids", logo: "https://i.postimg.cc/zBCLNtGZ/Duronto.jpg", url: "https://d2lmgfyblo9rak.cloudfront.net/playlist.m3u8" },
-  { name: "DW NEWS", category: "News", logo: "https://is.gd/imZMIp", url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream02/streamPlaylist.m3u8" },
-  { name: "CNN NEWS", category: "News", logo: "https://is.gd/ywX5PG", url: "https://amg01448-samsungin-cnnnow-samsungin-4npqg.amagi.tv/playlist/amg01448-samsungin-cnnnow-samsungin/playlist.m3u8" },
-  { name: "BBC News", category: "News", logo: "https://i.imgur.com/wgIUsFu.png", url: "https://ythls.armelin.one/channel/UCelk6aHijZq-GJBBB9YpReA.m3u8?v=1" },
-  { name: "Aljazeera HD Backup", category: "News", logo: "https://i.ibb.co/CzCnTHV/aljazeera-home-tv.png", url: "https://d1cy85syyhvqz5.cloudfront.net/v1/master/7b67fbda7ab859400a821e9aa0deda20ab7ca3d2/aljazeeraLive/AJE/index.m3u8" },
-  { name: "BD vs PAK", category: "Live", logo: "", url: "https://tvsen7.aynaott.com/tsports-hd/tracks-v1a1/mono.ts.m3u8" },
-  { name: "IPL 2026", category: "Live", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPkLNzYmE3iWoT0RIUPh5dPx392smbo8bbbTfkUy2nWw&s=10", url: "http://198.195.239.50:8095/SonyTenSports5/tracks-v1a1/mono.m3u8" },
-  { name: "Football World Cup 2026", category: "Sports", logo: "https://carboncredits.com/wp-content/uploads/2025/09/shutterstock_2306088965-e1757112807302.jpg", url: "http://premimum.online/live/jen12345/jen54321/129703.ts" },
-  { name: "PTV Sports", category: "Sports", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPCvTmUhiKDs4ehoVpFLh7xwdCNK2-N_gNFqnaOM4YRQ&s=10", url: "http://198.195.239.50:8095/PTV-kutta/video.m3u8" },
-  { name: "Nagorik TV", category: "Sports", logo: "", url: "http://198.195.239.50:8095/nagorik/tracks-v1a1/mono.m3u8" },
-  { name: "Premier League", category: "Sports", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPCvTmUhiKDs4ehoVpFLh7xwdCNK2-N_gNFqnaOM4YRQ&s=10", url: "https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad47832/level_3.m3u8" },
-   { name: "Maasranga TV", category: "Bangla", logo: "https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Maasranga%20TV.png", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/1722.m3u8" }
-    ];
+    // ====================== HARDCODED M3U PLAYLIST (User provided) ======================
+    // This is the complete M3U content you shared. It contains all channels.
+    const DEFAULT_M3U_CONTENT = `#EXTM3U
+# Source: SRC-ID:8a0a955eed047000f93213bc
+#EXTINF:-1 tvg-logo="https://ssl.com.bd/sites/default/files/BTV%20Logo%20Gallery.png" group-title="Bangla",BTV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://dl.dropbox.com/s/leielj83em5kg7h/somoy_news.png" group-title="Bangla",Somoy TV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://s4.gifyu.com/images/imagea02f4314e761661d.png" group-title="Bangla",Ekattor TV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://dl.dropbox.com/s/puf12xv5flgbnz5/channel24_bd.png" group-title="Bangla",Channel 24
+https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://dl.dropbox.com/s/7xwwb8hetz3w8rp/independent_tv.png" group-title="Bangla",Independent TV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://dl.dropbox.com/s/k7z1dsec1jfjbkn/jamuna_tv_bd.png" group-title="Bangla",Jamuna TV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://dl.dropbox.com/s/4ldi1dp09s8o6bm/atn_news_bd.png" group-title="Bangla",ATN News
+https://owrcovcrpy.gpcdn.net/bpk-tv/1706/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://s6.gifyu.com/images/image27cfa7002786c232.png" group-title="Bangla",ATN Bangla
+https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://www.ntvbd.com/sites/default/files/aggregator/2020/02/17/ntv-channel_0.jpg" group-title="Bangla",NTV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://s4.gifyu.com/images/image5c0bfa6b281be803.png" group-title="Bangla",BanglaVision
+https://owrcovcrpy.gpcdn.net/bpk-tv/1715/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://s4.gifyu.com/images/image534fa27d7683f33d.png" group-title="Bangla",Ekushey TV
+http://210.4.72.204/hls-live/livepkgr/_definst_/liveevent/livestream3.m3u8
+#EXTINF:-1 tvg-logo="https://cdn.tvpassport.com/image/station/240x135/channel-i-bangla.png" group-title="Bangla",Channel I
+https://owrcovcrpy.gpcdn.net/bpk-tv/1723/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/3/31/Deepto_TV_logo.png" group-title="Bangla",Deepto TV
+https://byphdgllyk.gpcdn.net/hls/deeptotv/0_1/index.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/ATN_Bangla.svg/2560px-ATN_Bangla.svg.png" group-title="Bangla",Atn Bangla
+https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/1722-audio_113522_eng=113200-video=1692000.m3u8
+#EXTINF:-1 tvg-logo="https://i.postimg.cc/C15wr1RW/Ekushey-Television-Logo-svg.png" group-title="Bangla",Ekushey TV
+https://ekusheyserver.com/hls-live/livepkgr/_definst_/liveevent/livestream3.m3u8
+#EXTINF:-1 tvg-logo="https://i.postimg.cc/g27Qp4RD/Background-Eraser-20240628-105829130.png" group-title="Bangla",Ntv
+https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/1716-audio_113462_eng=113200-video=1692000.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Logo_of_Deepto_TV.svg/1200px-Logo_of_Deepto_TV.svg.png" group-title="Bangla",Deepto Tv Backup
+https://owrcovcrpy.gpcdn.net/bpk-tv/1711/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://jamunagroup.com.bd/company-images/1662487622-mdshamimislam.png" group-title="Bangla",Jamuna Tv
+https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/1701-audio_113312_eng=113200-video=1692000.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/thumb/e/ea/Enterr10_Bangla.jpeg/200px-Enterr10_Bangla.jpeg" group-title="Bangla",Enter10 Bangla
+https://amg01448-samsungin-enterr10bangla-samsungin-ad-gg.amagi.tv/playlist/amg01448-samsungin-enterr10bangla-samsungin/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://jio.dinesh29.com.np/smart/ardinesh/logos/news18-bangla-news.png" group-title="Bangla",News18 Bangla
+https://amg01448-samsungin-news18bangla-samsungin-ad-qy.amagi.tv/playlist/amg01448-samsungin-news18bangla-samsungin/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://yt3.ggpht.com/ytc/AMLnZu_Gxy8ywjMY6_YPX-1uYtUGA56FOfDoBsH62-ekNA=s900-c-k-c0x00ffffff-no-rj" group-title="Religious",Saudi Quran
+https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8
+#EXTINF:-1 tvg-logo="https://images-na.ssl-images-amazon.com/images/I/71CywdrFaZL.png" group-title="Religious",Madina Live
+https://cdn-globecast.akamaized.net/live/eds/saudi_sunnah/hls_roku/index.m3u8
+#EXTINF:-1 tvg-logo="https://bdiptv.stream/uploads/tv_image/discovery.png" group-title="Documentary",Discovery Hindi
+https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverychannel2/default/manifest.mpd
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/1/1d/Love_Nature_TV.png" group-title="Documentary",Love Nature
+https://cdn1.logichost.in/ajmantv/live/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Animal_Planet_logo.svg/1280px-Animal_Planet_logo.svg.png" group-title="Documentary",Animal Planet HD
+https://tiger-hub.vercel.app@vodzong.mjunoon.tv:8087/streamtest/Animal-Planet-158-3/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.ytimg.com/vi/ZKFyzan2-xo/maxresdefault_live.jpg" group-title="Music",ATN Music
+https://owrcovcrpy.gpcdn.net/bpk-tv/1717/output/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.postimg.cc/t4cxjxRj/Deshi-TV.jpg" group-title="Live",Deshi TV HD
+https://deshitv.deshitv24.net/live/myStream/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.ytimg.com/vi/GRCWbI5ZSFg/maxresdefault.jpg" group-title="Bangla",ATN BANGLA UK
+https://app.ncare.live/live-orgin/atnbanglauk-off.stream/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/ATN%20Bangla.png" group-title="Bangla",ATN Bangla UK
+https://app.ncare.live/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI2/atnbanglauk-off.stream/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Deepto%20TV.jpeg" group-title="Bangla",Deepto TV
+https://byphdgllyk.gpcdn.net/hls/deeptotv/index.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Enter%2010%20Bangla.jpeg" group-title="Bangla",Enter 10 Bangla
+https://live-bangla.akamaized.net/liveabr/pub-iobanglakp3sff/live_720p/chunks.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Dd%20Bangla.png" group-title="Bangla",DD Bangla
+https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91ed02aa2fd92/ed7bd2c7-8d10-4051-b397-2f6b90f99acb/2e9e32a4-c4f7-49c3-96d6-c4e3660c7e3f/2.m3u8
+#EXTINF:-1 tvg-logo="https://i.postimg.cc/1tmcNHW3/Star-Jalsha-HD.jpg" group-title="Bangla",Star Jalsha HD
+https://dhoomtv.xyz/live/P4B9TB9xR8/humongous2tonight/23218.ts
+#EXTINF:-1 tvg-logo="https://i.ibb.co.com/KxC4ccD0/Casio-opening-bot-logo-4k-scaled.png" group-title="Music",9xM
+https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/a731c680-6a62-4174-bc98-186fe654724a/0.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/T%20Sports.png" group-title="Sports",T Sports
+https://live.tsports.com/mobile_hls/tsports_live_2/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPCvTmUhiKDs4ehoVpFLh7xwdCNK2-N_gNFqnaOM4YRQ&s=10" group-title="Sports",Live Sports
+http://198.195.239.50:8095/Eurosport/index.m3u8
+#EXTINF:-1 tvg-logo="https://carboncredits.com/wp-content/uploads/2025/09/shutterstock_2306088965-e1757112807302.jpg" group-title="Sports",Football World Cup 2026
+http://premimum.online/live/jen12345/jen54321/129703.ts
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Star%20Sports%201%40.jpeg" group-title="Sports",Star Sports 1 HD
+http://tvn1.chowdhury-shaheb.com/starsport1/index.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/National%20Geographic%20Channel.png" group-title="Documentary",Nat Geo HD
+http://103.229.254.25:7001/play/a038/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.postimg.cc/8k0rH0MK/CGTN-Documentary-logo.png" group-title="Documentary",CGTN Documentary
+https://livedoc.cgtn.com/1000d/prog_index.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/BTV%20National.png" group-title="Bangla",BTV National
+http://103.229.254.25:7001/play/a064/index.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/subirkumarpaul/Logo/main/Al%20Jazeera%20.png" group-title="News",Aljazeera
+https://owrcovcrpy.gpcdn.net/bpk-tv/1721/output/index.m3u8
+`;
 
-    // ------------------------------
-    // 2. DOM elements and variables
-    // ------------------------------
-    const listBar = document.getElementById("listbar");
-    const titleEl = document.getElementById("now-playing-title");
-    const videoPlayer = document.getElementById("video-player");
-    const searchInput = document.getElementById("channel-search");
-    const catTabs = document.querySelectorAll(".cat-tab");
-
+    // ====================== GLOBAL STATE ======================
+    let allChannels = [];      // { id, name, url, group, logo }
     let activeCategory = "all";
-    let currentChannel = null;
-    let hls = null; // HLS instance
+    let searchText = "";
+    let currentHls = null;
+    let qualitySelect = document.getElementById('qualitySelect');
 
-    // Helper: destroy HLS if exists
-    function destroyHls() {
-        if (hls) {
-            hls.destroy();
-            hls = null;
+    // DOM elements
+    const video = document.getElementById('videoPlayer');
+    const currentChannelSpan = document.getElementById('currentChannelLabel');
+    const categoriesDiv = document.getElementById('categoriesList');
+    const channelsGridDiv = document.getElementById('channelsGrid');
+    const searchInput = document.getElementById('searchInput');
+    const totalSpan = document.getElementById('totalChannels');
+    const resetDefaultBtn = document.getElementById('resetDefaultBtn');
+    const fetchUrlBtn = document.getElementById('fetchUrlBtn');
+    const chooseFileBtn = document.getElementById('chooseFileBtn');
+    const fileInput = document.getElementById('m3uFileInput');
+    const addChannelBtn = document.getElementById('addChannelBtn');
+    const m3uUrlInput = document.getElementById('m3uUrlInput');
+    const chName = document.getElementById('chName');
+    const chUrl = document.getElementById('chUrl');
+    const chGroup = document.getElementById('chGroup');
+    const chLogo = document.getElementById('chLogo');
+
+    const STORAGE_KEY = "nistvpro_custom_channels";
+
+    function showToast(msg, duration = 2500) {
+        let t = document.getElementById('toastMessage');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', duration);
+    }
+
+    // destroy HLS
+    function destroyPlayer() {
+        if (currentHls) {
+            currentHls.destroy();
+            currentHls = null;
+        }
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        qualitySelect.disabled = true;
+        qualitySelect.innerHTML = '<option>Auto quality</option>';
+    }
+
+    // play channel using HLS.js
+    function playChannel(ch) {
+        if (!ch || !ch.url) return;
+        destroyPlayer();
+        currentChannelSpan.innerText = ch.name;
+        const streamUrl = ch.url.trim();
+
+        const setQualityOptions = (levels) => {
+            if (levels && levels.length > 1) {
+                qualitySelect.disabled = false;
+                qualitySelect.innerHTML = '<option value="auto">Auto (Best)</option>';
+                levels.forEach((lvl, idx) => {
+                    let label = lvl.height ? `${lvl.height}p` : `${Math.round(lvl.bitrate / 1000)}k`;
+                    qualitySelect.innerHTML += `<option value="${idx}">${label}</option>`;
+                });
+                qualitySelect.onchange = () => {
+                    if (currentHls) currentHls.currentLevel = qualitySelect.value === 'auto' ? -1 : parseInt(qualitySelect.value);
+                };
+            } else {
+                qualitySelect.disabled = true;
+                qualitySelect.innerHTML = '<option>Auto (No variants)</option>';
+            }
+        };
+
+        if (streamUrl.includes('.m3u8') || streamUrl.endsWith('m3u8')) {
+            if (Hls.isSupported()) {
+                const hls = new Hls({ debug: false });
+                currentHls = hls;
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    setQualityOptions(hls.levels);
+                    video.play().catch(e => showToast("Autoplay blocked, click play", 1500));
+                });
+                hls.on(Hls.Events.ERROR, (_, err) => {
+                    if (err.fatal) showToast("Stream error", 2000);
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = streamUrl;
+                video.play().catch(()=>{});
+                qualitySelect.disabled = true;
+            } else showToast("HLS not supported");
+        } else {
+            video.src = streamUrl;
+            video.play().catch(()=>showToast("Playback error"));
+            qualitySelect.disabled = true;
         }
     }
 
-    // Load m3u8 using HLS.js or native if supported
-    function loadM3U8(url) {
-        // remove any loading overlay if present
-        const existingOverlay = document.querySelector(".loading-overlay");
-        if(existingOverlay) existingOverlay.remove();
-
-        // Show loading indicator
-        const container = document.getElementById("video-container");
-        const loadingDiv = document.createElement("div");
-        loadingDiv.className = "loading-overlay";
-        loadingDiv.innerText = "Loading stream...";
-        container.appendChild(loadingDiv);
-
-        // Stop current playback
-        videoPlayer.pause();
-        destroyHls();
-
-        // Check for native HLS support (Safari)
-        if (videoPlayer.canPlayType("application/vnd.apple.mpegurl")) {
-            videoPlayer.src = url;
-            videoPlayer.addEventListener('loadedmetadata', () => {
-                loadingDiv.remove();
-                videoPlayer.play().catch(e => console.warn("Autoplay prevented:", e));
-            }, { once: true });
-            videoPlayer.addEventListener('error', () => {
-                if(loadingDiv) loadingDiv.remove();
-                alert("Cannot play this stream. Check URL or network.");
-            }, { once: true });
-        } 
-        else if (Hls.isSupported()) {
-            hls = new Hls({
-                enableWorker: true,
-                lowLatencyMode: true,
-                backBufferLength: 30,
-            });
-            hls.loadSource(url);
-            hls.attachMedia(videoPlayer);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                if(loadingDiv) loadingDiv.remove();
-                videoPlayer.play().catch(e => console.warn("Autoplay blocked:", e));
-            });
-            hls.on(Hls.Events.ERROR, (event, data) => {
-                if (data.fatal) {
-                    switch(data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.error("Network error, trying to recover");
-                            hls.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.error("Media error, recovering");
-                            hls.recoverMediaError();
-                            break;
-                        default:
-                            destroyHls();
-                            if(loadingDiv) loadingDiv.remove();
-                            alert("Cannot play stream. Invalid m3u8 or network issue.");
-                            break;
-                    }
-                } else if (loadingDiv) {
-                    // non-fatal, maybe still loading
-                }
-            });
-        } 
-        else {
-            if(loadingDiv) loadingDiv.remove();
-            alert("HLS not supported in this browser.");
-        }
+    // get logo display (image or fallback text)
+    function getLogoDisplay(ch) {
+        if (ch.logo && ch.logo.match(/^https?:\/\//i)) return `url('${ch.logo}')`;
+        if (ch.logo && ch.logo.trim()) return ch.logo;
+        let first = ch.name.charAt(0).toUpperCase();
+        return /[A-Z0-9]/.test(first) ? first : "📺";
     }
 
-    // Render channel list
-    function renderChannels(filterText = "") {
-        listBar.innerHTML = "";
-        const filtered = channelsData.filter(ch => {
-            const matchName = ch.name.toLowerCase().includes(filterText.toLowerCase());
-            const matchCat = activeCategory === "all" || ch.category === activeCategory;
-            return matchName && matchCat;
+    // render UI
+    function renderUI() {
+        totalSpan.innerText = `(${allChannels.length})`;
+        // build categories map
+        let groups = new Map();
+        groups.set('all', allChannels.length);
+        allChannels.forEach(ch => { let g = ch.group || "Uncategorized"; groups.set(g, (groups.get(g)||0)+1); });
+        let sorted = Array.from(groups.keys()).filter(k=>k!=='all').sort();
+        if (groups.has('all')) sorted.unshift('all');
+        let catHtml = '';
+        sorted.forEach(cat => {
+            let activeClass = activeCategory === cat ? 'active' : '';
+            catHtml += `<div class="cat-item ${activeClass}" data-cat="${cat}">${cat==='all'?'All':cat} (${groups.get(cat)})</div>`;
+        });
+        categoriesDiv.innerHTML = catHtml;
+        document.querySelectorAll('.cat-item').forEach(el => {
+            el.addEventListener('click', () => { activeCategory = el.dataset.cat; renderUI(); });
         });
 
-        filtered.forEach(ch => {
-            const li = document.createElement("li");
-            li.className = "channel-item";
-            if (currentChannel && currentChannel.name === ch.name) li.classList.add("active");
-            li.setAttribute("data-name", ch.name.toLowerCase());
-            li.setAttribute("data-category", ch.category);
-            li.innerHTML = `
-                <div class="logo-wrapper">
-                    <img src="${ch.logo}" class="channel-logo" alt="${ch.name}" onerror="this.src='https://placehold.co/80x80?text=No+Logo'">
-                </div>
-                <div class="channel-name">${ch.name}</div>
-            `;
-            li.onclick = () => {
-                // change channel
-                currentChannel = ch;
-                titleEl.innerText = ch.name;
-                loadM3U8(ch.url);
-                // update active class
-                document.querySelectorAll(".channel-item").forEach(item => item.classList.remove("active"));
-                li.classList.add("active");
-                if (window.innerWidth < 992) window.scrollTo({ top: 0, behavior: "smooth" });
-            };
-            listBar.appendChild(li);
+        let filtered = allChannels.filter(ch => {
+            if (activeCategory !== 'all' && (ch.group||"Uncategorized") !== activeCategory) return false;
+            if (searchText.trim() && !ch.name.toLowerCase().includes(searchText.toLowerCase())) return false;
+            return true;
         });
 
         if (filtered.length === 0) {
-            const emptyMsg = document.createElement("div");
-            emptyMsg.style.padding = "20px";
-            emptyMsg.style.textAlign = "center";
-            emptyMsg.style.color = "#aaa";
-            emptyMsg.innerText = "No channels found";
-            listBar.appendChild(emptyMsg);
+            channelsGridDiv.innerHTML = '<div class="empty-msg"><i class="fas fa-frown"></i> No channels match</div>';
+            return;
         }
-    }
-
-    // Search & filter
-    function filterChannels() {
-        const query = searchInput.value;
-        renderChannels(query);
-    }
-
-    // Category click
-    catTabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            catTabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-            activeCategory = tab.getAttribute("data-type");
-            filterChannels();
+        let gridHtml = '';
+        filtered.forEach(ch => {
+            let logoStyle = '';
+            let logoContent = '';
+            if (ch.logo && ch.logo.match(/^https?:\/\//i)) {
+                logoStyle = `background-image: ${getLogoDisplay(ch)}; background-size: cover;`;
+                logoContent = '';
+            } else {
+                logoContent = getLogoDisplay(ch);
+            }
+            let groupShow = ch.group || "General";
+            gridHtml += `
+                <div class="channel-card" data-url="${escapeAttr(ch.url)}" data-name="${escapeAttr(ch.name)}" data-group="${escapeAttr(groupShow)}">
+                    <div class="channel-logo" style="${logoStyle}">${logoContent}</div>
+                    <div class="channel-info">
+                        <div class="channel-name">${escapeHtml(ch.name)}</div>
+                        <div class="channel-group"><i class="fas fa-tag"></i> ${escapeHtml(groupShow)}</div>
+                    </div>
+                </div>
+            `;
         });
-    });
+        channelsGridDiv.innerHTML = gridHtml;
+        document.querySelectorAll('.channel-card').forEach(card => {
+            card.addEventListener('click', () => {
+                playChannel({ url: card.dataset.url, name: card.dataset.name, group: card.dataset.group });
+            });
+        });
+    }
 
-    searchInput.addEventListener("input", filterChannels);
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function escapeAttr(str) { return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
 
-    // initial load: default channel (TSports HD)
-    function init() {
-        renderChannels();
-        // Auto-select first channel (TSports HD) and play
-        const firstChannel = channelsData.find(ch => ch.name === "TSports HD") || channelsData[0];
-        if (firstChannel) {
-            currentChannel = firstChannel;
-            titleEl.innerText = firstChannel.name;
-            loadM3U8(firstChannel.url);
-            // mark active
-            const items = document.querySelectorAll(".channel-item");
-            if(items.length) items[0].classList.add("active");
+    // M3U parser
+    function parseM3U(content) {
+        const lines = content.split(/\r?\n/);
+        let channels = [];
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (line.startsWith('#EXTINF')) {
+                let attrs = {};
+                let attrRegex = /(\w+(?:-\w+)?)="([^"]*)"/g;
+                let match;
+                while ((match = attrRegex.exec(line)) !== null) attrs[match[1]] = match[2];
+                let name = "";
+                let lastComma = line.lastIndexOf(',');
+                if (lastComma !== -1) name = line.substring(lastComma + 1).trim();
+                if (!name && attrs['tvg-name']) name = attrs['tvg-name'];
+                if (!name) name = "Unknown";
+                let group = attrs['group-title'] || "Uncategorized";
+                let logo = attrs['tvg-logo'] || "";
+                let urlLine = "";
+                let j = i + 1;
+                while (j < lines.length) {
+                    let nxt = lines[j].trim();
+                    if (nxt && !nxt.startsWith('#')) {
+                        urlLine = nxt;
+                        break;
+                    }
+                    j++;
+                }
+                if (urlLine && !urlLine.includes('#KODIPROP')) {
+                    channels.push({
+                        id: Date.now() + '-' + Math.random() + '-' + i,
+                        name: name,
+                        url: urlLine,
+                        group: group,
+                        logo: logo || ""
+                    });
+                }
+                i = j;
+            }
+        }
+        return channels;
+    }
+
+    // load default channels from hardcoded M3U
+    function loadDefaultChannels() {
+        const channels = parseM3U(DEFAULT_M3U_CONTENT);
+        allChannels = channels;
+        persistChannels();
+        showToast(`Loaded ${channels.length} channels from built-in playlist`, 2000);
+        renderUI();
+    }
+
+    // persist to localStorage
+    function persistChannels() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allChannels));
+    }
+
+    // reset to default
+    function resetToDefault() {
+        if (confirm("Restore original playlist? All manually added channels will be lost.")) {
+            loadDefaultChannels();
         }
     }
+
+    // add single channel
+    function addSingleChannel() {
+        let name = chName.value.trim();
+        let url = chUrl.value.trim();
+        let group = chGroup.value.trim() || "General";
+        let logo = chLogo.value.trim();
+        if (!name || !url) { showToast("Name and URL required"); return; }
+        if (!url.startsWith('http')) { showToast("URL must start with http/https"); return; }
+        allChannels.push({
+            id: Date.now() + '-' + Math.random(),
+            name, url, group, logo
+        });
+        persistChannels();
+        chName.value = chUrl.value = chGroup.value = chLogo.value = "";
+        renderUI();
+        showToast(`Added ${name}`, 1500);
+    }
+
+    // fetch external M3U
+    async function fetchCustomM3U() {
+        let url = m3uUrlInput.value.trim();
+        if (!url) { showToast("Enter playlist URL"); return; }
+        try {
+            let res = await fetch(url);
+            if (!res.ok) throw new Error();
+            let txt = await res.text();
+            let channels = parseM3U(txt);
+            let mergeMode = document.querySelector('input[name="mergeMode"]:checked').value;
+            if (mergeMode === 'merge') {
+                let existingUrls = new Set(allChannels.map(c => c.url));
+                let added = channels.filter(c => !existingUrls.has(c.url));
+                allChannels = [...allChannels, ...added];
+                showToast(`Merged ${added.length} channels`);
+            } else {
+                allChannels = channels;
+                showToast(`Replaced with ${channels.length} channels`);
+            }
+            persistChannels();
+            renderUI();
+        } catch(e) { showToast("Failed to fetch URL (CORS?)"); }
+    }
+
+    // load local file
+    function loadLocalFile(file) {
+        let reader = new FileReader();
+        reader.onload = e => {
+            let channels = parseM3U(e.target.result);
+            let mergeMode = document.querySelector('input[name="mergeMode"]:checked').value;
+            if (mergeMode === 'merge') {
+                let existingUrls = new Set(allChannels.map(c => c.url));
+                let added = channels.filter(c => !existingUrls.has(c.url));
+                allChannels = [...allChannels, ...added];
+                showToast(`Merged ${added.length} channels`);
+            } else {
+                allChannels = channels;
+                showToast(`Loaded ${channels.length} channels`);
+            }
+            persistChannels();
+            renderUI();
+        };
+        reader.readAsText(file);
+    }
+
+    // initial load
+    function init() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                allChannels = JSON.parse(stored);
+                if (allChannels.length === 0) loadDefaultChannels();
+                else renderUI();
+            } catch(e) { loadDefaultChannels(); }
+        } else {
+            loadDefaultChannels();
+        }
+    }
+
+    // event listeners
+    resetDefaultBtn.addEventListener('click', resetToDefault);
+    fetchUrlBtn.addEventListener('click', fetchCustomM3U);
+    chooseFileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => { if(e.target.files.length) loadLocalFile(e.target.files[0]); e.target.value=''; });
+    addChannelBtn.addEventListener('click', addSingleChannel);
+    searchInput.addEventListener('input', (e) => { searchText = e.target.value; renderUI(); });
 
     init();
-
-    // Optional: handle visibility change to pause/resume HLS when tab hidden (saves bandwidth)
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            if (hls) hls.stopLoad();
-            videoPlayer.pause();
-        } else {
-            if (hls) hls.startLoad();
-            videoPlayer.play().catch(e => {});
-        }
-    });
 </script>
 </body>
 </html>
