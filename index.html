@@ -1,65 +1,496 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>লাইভ টিভি হোস্ٹنگ - Vercel</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Live Free TV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- HLS.js library for m3u8 playback -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { margin: 0; padding: 0; background: #0f0f12; color: #fff; font-family: Arial, sans-serif; text-align: center; }
-        .container { max-width: 800px; margin: 20px auto; padding: 15px; }
-        .player-wrapper { width: 100%; border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        video { width: 100%; display: block; }
-        .channel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .channel-btn { background: #1f1f27; border: 1px solid #333; color: #fff; padding: 14px; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.2s; }
-        .channel-btn:hover { background: #ff0055; border-color: #ff0055; }
-    </style>
-</head>
-<body>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div class="container">
-        <h2>ফ্রি লাইভ টিভি প্লেয়ার</h2>
-        <div class="player-wrapper">
-            <video id="player" controls crossorigin playsinline></video>
-        </div>
+        :root {
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --accent: #ff0055;
+            --text: #fff;
+            --hover: #2a2a2a;
+        }
 
-        <h3>চ্যানেল লিস্ট</h3>
-        <div class="channel-list">
-            <button class="channel-btn" onclick="playM3U8('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8')">T-Sports</button>
-            <button class="channel-btn" onclick="playM3U8('আপনার_অন্য_লিংক_এখানে')">চ্যানেল ২</button>
-        </div>
-    </div>
+        body, html {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
 
-    <script>
-        const video = document.getElementById('player');
-        let hls = new Hls();
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
 
-        function playM3U8(url) {
-            console.log("Direct Loading URL:", url);
+        /* Player section */
+        .player-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            padding: 20px;
+            gap: 15px;
+            box-sizing: border-box;
+        }
 
-            if (Hls.isSupported()) {
-                hls.destroy();
-                hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() { 
-                    video.play().catch(function(error) {
-                        console.log("Autoplay blocked, waiting for user interaction.");
-                    }); 
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.addEventListener('loadedmetadata', function() { video.play(); });
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            aspect-ratio: 16 / 9;
+            width: 100%;
+        }
+
+        #video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: black;
+        }
+
+        .video-info h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            flex: 1;
+            min-width: 350px;
+            background: var(--card);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(255,255,255,.1);
+        }
+
+        .search-container {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        #channel-search {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,.05);
+            color: #fff;
+            margin-bottom: 15px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .cat-tab {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,.08);
+            color: #fff;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cat-tab.active {
+            background: var(--accent);
+        }
+
+        .channel-list {
+            list-style: none;
+            margin: 0;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            align-content: start;
+            flex: 1;
+        }
+
+        .channel-item {
+            background: rgba(255,255,255,.04);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+            border: 2px solid transparent;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .channel-item:hover {
+            background: var(--hover);
+        }
+
+        .channel-item.active {
+            border-color: var(--accent);
+            background: rgba(255,0,85,0.05);
+        }
+
+        .logo-wrapper {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 8px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 8px;
+        }
+
+        .channel-logo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .channel-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #ddd;
+            text-align: center;
+            word-break: break-word;
+            max-width: 100%;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        @media (max-width: 992px) {
+            body, html {
+                overflow: auto;
+                height: auto;
+            }
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                min-width: 100%;
+                height: auto;
+            }
+            .player-section {
+                flex: none;
+            }
+            .channel-list {
+                overflow-y: visible;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            new Plyr(video, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
-            // সাইট ওপেন হলে অটোমেটিক T-Sports লিংকটি লোড হবে
-            playM3U8('http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8');
+        /* Error / loading state */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <main class="player-section">
+        <div class="video-container" id="video-container">
+            <video id="video-player" controls playsinline preload="auto"></video>
+        </div>
+        <div class="video-info">
+            <h1 id="now-playing-title">TSports HD</h1>
+        </div>
+    </main>
+    <aside class="sidebar">
+        <div class="search-container">
+            <input id="channel-search" placeholder="Search channels..." autocomplete="off">
+            <div class="category-tabs">
+                <button class="cat-tab active" data-type="all">All</button>
+                <button class="cat-tab" data-type="Sports">Sports</button>
+                <button class="cat-tab" data-type="News">News</button>
+                <button class="cat-tab" data-type="Bangla">Bangla</button>
+                <button class="cat-tab" data-type="Indian Bangla">Indian Bangla</button>
+                <button class="cat-tab" data-type="Hindi">Hindi</button>
+                <button class="cat-tab" data-type="Kids">Kids</button>
+                <button class="cat-tab" data-type="Documentary">Doc</button>
+                <button class="cat-tab" data-type="Music">Music</button>
+                <button class="cat-tab" data-type="Other">Other</button>
+            </div>
+        </div>
+        <ul class="channel-list" id="listbar"></ul>
+    </aside>
+</div>
+
+<script>
+    // ------------------------------
+    // 1. Define channel data (m3u8 URLs included)
+    //    You can replace these with your own m3u8 links
+    // ------------------------------
+    const channelsData = [
+        { name: "TSports HD", category: "Sports", logo: "https://i.imgur.com/2sY8F5Q.png", url: "http://198.195.239.50:8095/Tsports/tracks-v1a1/mono.m3u8" },
+        { name: "START SPORTS1", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/bdixbd.net_t.me/tvhoichoi24/video.m3u8" },
+        { name: "STAR SPORTS2", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/StarSports2/tracks-v1a1/mono.m3u8" },
+        { name: "STAR SPORTS SELECT1 HD", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/StarSportsSelect1/tracks-v1a1/mono.m3u8" },
+        { name: "STAR SPORTS SELECT2 HD", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/StarSportsSelect2/tracks-v1a1/mono.m3u8" },
+        { name: "SONY SPORTS 2 HD", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/SonyTenSports2/tracks-v1a1/mono.m3u8" },
+        { name: "SONY SPORTS 5 HD", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/SonyTenSports5/tracks-v1a1/mono.m3u8" },
+        { name: "EURO SPORTS HD", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/Eurosport/tracks-v1a1/mono.m3u8" },
+        { name: "WiLLoW", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/WiLLow/index.m3u8" },
+        { name: "PTV", category: "Sports", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/PTV-kutta/video.m3u8" },
+        { name: "NAGORIK", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/nagorik/tracks-v1a1/mono.m3u8" },
+        { name: "SHOMOY TV HD", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "http://198.195.239.50:8095/bdixbd.net_somoytv/video.m3u8" },
+        { name: "NEWS24 HD", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/news24.m3u8" },
+        { name: "CHANNEL 24", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/channel24.m3u8" },
+        { name: "ATN NEWS HD", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/atnnews.m3u8" },
+        { name: "EKATTOR TV HD", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/ekattor.m3u8" },
+        { name: "JAMUNA TV", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/jamuna.m3u8" },
+        { name: "ATN Bangla HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/atnbangla.m3u8" },
+        { name: "BANGLA VISION HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/banglavision.m3u8" },
+        { name: "CHANNEL I HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/channeli.m3u8" },
+        { name: "GTV HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/gtv.m3u8" },
+        { name: "NTV HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/ntv.m3u8" },
+        { name: "Maasranga HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/maasranga.m3u8" },
+        { name: "STAR JALSHA HD", category: "Indian Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/jalsha.m3u8" },
+        { name: "Jalsha Movies HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/jalshamovies.m3u8" },
+        { name: "ZEE BANGLA HD", category: "Indian Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/zeebangla.m3u8" },
+        { name: "ZEE BANGLA CHINEMA HD", category: "Indian Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/zeecinema.m3u8" },
+        { name: "COLOR BANGLA", category: "Indian Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/colorsbangla.m3u8" },
+        { name: "SONY AATH", category: "Indian Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/sonyaath.m3u8" },
+        { name: "ENTER 10 BANGLA", category: "Indian Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/enter10.m3u8" },
+        { name: "SONY MAX HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/sonymax.m3u8" },
+        { name: "SONY TV HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/sonytv.m3u8" },
+        { name: "STAR PLUS HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/starplus.m3u8" },
+        { name: "STAR GOLD HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/stargold.m3u8" },
+        { name: "STAR MOVIES HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/starmovies.m3u8" },
+        { name: "ZEE TV HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/zeetv.m3u8" },
+        { name: "ZEE CHINEMA HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/zeecinema.m3u8" },
+        { name: "COLOR CINEPLEX HD", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/colorscineplex.m3u8" },
+        { name: "DISCOVERY HD", category: "Documentary", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/discovery.m3u8" },
+        { name: "NATIONAL GEOGRAPHIC HD", category: "Documentary", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/natgeo.m3u8" },
+        { name: "ANIMAL PLANET HD", category: "Documentary", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/animalplanet.m3u8" },
+        { name: "Aljazeera HD", category: "News", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/aljazeera.m3u8" },
+        { name: "B4U MOVIES", category: "Hindi", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/b4u.m3u8" },
+        { name: "CARTOON NETWORK HD", category: "Kids", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/cartoon.m3u8" },
+        { name: "DISCOVERY KIDS HD", category: "Kids", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/discoverykids.m3u8" },
+        { name: "POGO", category: "Kids", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/pogo.m3u8" },
+        { name: "SANGEET BANGLA", category: "Music", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/sangeet.m3u8" },
+        { name: "9X JALWA", category: "Music", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/9xjalwa.m3u8" },
+        { name: "SRK TV HD", category: "Bangla", logo: "https://i.imgur.com/UwI5K1b.png", url: "https://sample-videos.com/video123/m3u8/ts/srk.m3u8" }
+    ];
+
+    // ------------------------------
+    // 2. DOM elements and variables
+    // ------------------------------
+    const listBar = document.getElementById("listbar");
+    const titleEl = document.getElementById("now-playing-title");
+    const videoPlayer = document.getElementById("video-player");
+    const searchInput = document.getElementById("channel-search");
+    const catTabs = document.querySelectorAll(".cat-tab");
+
+    let activeCategory = "all";
+    let currentChannel = null;
+    let hls = null; // HLS instance
+
+    // Helper: destroy HLS if exists
+    function destroyHls() {
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+    }
+
+    // Load m3u8 using HLS.js or native if supported
+    function loadM3U8(url) {
+        // remove any loading overlay if present
+        const existingOverlay = document.querySelector(".loading-overlay");
+        if(existingOverlay) existingOverlay.remove();
+
+        // Show loading indicator
+        const container = document.getElementById("video-container");
+        const loadingDiv = document.createElement("div");
+        loadingDiv.className = "loading-overlay";
+        loadingDiv.innerText = "Loading stream...";
+        container.appendChild(loadingDiv);
+
+        // Stop current playback
+        videoPlayer.pause();
+        destroyHls();
+
+        // Check for native HLS support (Safari)
+        if (videoPlayer.canPlayType("application/vnd.apple.mpegurl")) {
+            videoPlayer.src = url;
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                loadingDiv.remove();
+                videoPlayer.play().catch(e => console.warn("Autoplay prevented:", e));
+            }, { once: true });
+            videoPlayer.addEventListener('error', () => {
+                if(loadingDiv) loadingDiv.remove();
+                alert("Cannot play this stream. Check URL or network.");
+            }, { once: true });
+        } 
+        else if (Hls.isSupported()) {
+            hls = new Hls({
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 30,
+            });
+            hls.loadSource(url);
+            hls.attachMedia(videoPlayer);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                if(loadingDiv) loadingDiv.remove();
+                videoPlayer.play().catch(e => console.warn("Autoplay blocked:", e));
+            });
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                if (data.fatal) {
+                    switch(data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.error("Network error, trying to recover");
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.error("Media error, recovering");
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            destroyHls();
+                            if(loadingDiv) loadingDiv.remove();
+                            alert("Cannot play stream. Invalid m3u8 or network issue.");
+                            break;
+                    }
+                } else if (loadingDiv) {
+                    // non-fatal, maybe still loading
+                }
+            });
+        } 
+        else {
+            if(loadingDiv) loadingDiv.remove();
+            alert("HLS not supported in this browser.");
+        }
+    }
+
+    // Render channel list
+    function renderChannels(filterText = "") {
+        listBar.innerHTML = "";
+        const filtered = channelsData.filter(ch => {
+            const matchName = ch.name.toLowerCase().includes(filterText.toLowerCase());
+            const matchCat = activeCategory === "all" || ch.category === activeCategory;
+            return matchName && matchCat;
         });
-    </script>
+
+        filtered.forEach(ch => {
+            const li = document.createElement("li");
+            li.className = "channel-item";
+            if (currentChannel && currentChannel.name === ch.name) li.classList.add("active");
+            li.setAttribute("data-name", ch.name.toLowerCase());
+            li.setAttribute("data-category", ch.category);
+            li.innerHTML = `
+                <div class="logo-wrapper">
+                    <img src="${ch.logo}" class="channel-logo" alt="${ch.name}" onerror="this.src='https://placehold.co/80x80?text=No+Logo'">
+                </div>
+                <div class="channel-name">${ch.name}</div>
+            `;
+            li.onclick = () => {
+                // change channel
+                currentChannel = ch;
+                titleEl.innerText = ch.name;
+                loadM3U8(ch.url);
+                // update active class
+                document.querySelectorAll(".channel-item").forEach(item => item.classList.remove("active"));
+                li.classList.add("active");
+                if (window.innerWidth < 992) window.scrollTo({ top: 0, behavior: "smooth" });
+            };
+            listBar.appendChild(li);
+        });
+
+        if (filtered.length === 0) {
+            const emptyMsg = document.createElement("div");
+            emptyMsg.style.padding = "20px";
+            emptyMsg.style.textAlign = "center";
+            emptyMsg.style.color = "#aaa";
+            emptyMsg.innerText = "No channels found";
+            listBar.appendChild(emptyMsg);
+        }
+    }
+
+    // Search & filter
+    function filterChannels() {
+        const query = searchInput.value;
+        renderChannels(query);
+    }
+
+    // Category click
+    catTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            catTabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            activeCategory = tab.getAttribute("data-type");
+            filterChannels();
+        });
+    });
+
+    searchInput.addEventListener("input", filterChannels);
+
+    // initial load: default channel (TSports HD)
+    function init() {
+        renderChannels();
+        // Auto-select first channel (TSports HD) and play
+        const firstChannel = channelsData.find(ch => ch.name === "TSports HD") || channelsData[0];
+        if (firstChannel) {
+            currentChannel = firstChannel;
+            titleEl.innerText = firstChannel.name;
+            loadM3U8(firstChannel.url);
+            // mark active
+            const items = document.querySelectorAll(".channel-item");
+            if(items.length) items[0].classList.add("active");
+        }
+    }
+
+    init();
+
+    // Optional: handle visibility change to pause/resume HLS when tab hidden (saves bandwidth)
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            if (hls) hls.stopLoad();
+            videoPlayer.pause();
+        } else {
+            if (hls) hls.startLoad();
+            videoPlayer.play().catch(e => {});
+        }
+    });
+</script>
 </body>
 </html>
